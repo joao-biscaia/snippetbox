@@ -1,0 +1,43 @@
+package config
+
+import (
+	"html/template"
+	"path/filepath"
+	"snippetbox/internal/models"
+)
+
+type TemplateData struct {
+	Snippet  *models.Snippet
+	Snippets []*models.Snippet
+}
+
+func NewTemplatecache() (map[string]*template.Template, error) {
+	cache := map[string]*template.Template{}
+
+	pages, err := filepath.Glob("./ui/html/pages/*.tmpl.html")
+	if err != nil {
+		return nil, err
+	}
+
+	for _, page := range pages {
+		name := filepath.Base(page)
+
+		ts, err := template.ParseFiles("./ui/html/base.tmpl.html")
+		if err != nil {
+			return nil, err
+		}
+
+		ts, err = template.ParseGlob("./ui/html/partials/*.html")
+		if err != nil {
+			return nil, err
+		}
+
+		ts, err = template.ParseFiles(page)
+		if err != nil {
+			return nil, err
+		}
+
+		cache[name] = ts
+	}
+	return cache, nil
+}

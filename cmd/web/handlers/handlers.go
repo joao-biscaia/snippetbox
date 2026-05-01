@@ -23,32 +23,9 @@ func Home(app *config.Application) http.HandlerFunc {
 			return
 		}
 
-		for _, snippet := range snippets {
-			fmt.Fprintf(w, "id:%d, title:%s, content:%s, created:%v, expires:%v\n",
-				snippet.ID.Int64,
-				snippet.Title.String,
-				snippet.Content.String,
-				snippet.Created.Time,
-				snippet.Expires.Time)
-		}
-
-		//files := []string{
-		//	"./ui/html/base.tmpl.html",
-		//	"./ui/html/pages/home.tmpl.html",
-		//	"./ui/html/partials/nav.tmpl.html",
-		//}
-		//
-		//ts, err := template.ParseFiles(files...)
-		//if err != nil {
-		//	app.ServerError(w, err)
-		//	return
-		//}
-		//
-		//err = ts.ExecuteTemplate(w, "base", nil)
-		//if err != nil {
-		//	app.ServerError(w, err)
-		//	return
-		//}
+		app.Render(w, http.StatusOK, "home.tmpl.html", &config.TemplateData{
+			Snippets: snippets,
+		})
 	}
 }
 func SnippetView(app *config.Application) http.HandlerFunc {
@@ -69,7 +46,9 @@ func SnippetView(app *config.Application) http.HandlerFunc {
 			return
 		}
 
-		fmt.Fprintf(w, "%+v", snippet)
+		app.Render(w, http.StatusOK, "view.tmpl.html", &config.TemplateData{
+			Snippet: snippet,
+		})
 	}
 }
 func SnippetCreate(app *config.Application) http.HandlerFunc {

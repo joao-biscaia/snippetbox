@@ -22,14 +22,18 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	app := &config.Application{
-		InfoLog:  log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime),
-		ErrorLog: log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile),
-		Snippets: &models.SnippetModel{DB: db},
-	}
-
 	defer db.Close()
+
+	templateCache, err := config.NewTemplatecache()
+	if err != nil {
+		log.Fatal(err)
+	}
+	app := &config.Application{
+		InfoLog:       log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime),
+		ErrorLog:      log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile),
+		Snippets:      &models.SnippetModel{DB: db},
+		TemplateCache: templateCache,
+	}
 
 	srv := &http.Server{
 		Addr:     *addr,
