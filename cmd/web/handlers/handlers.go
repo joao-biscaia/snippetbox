@@ -3,7 +3,6 @@ package handlers
 import (
 	"errors"
 	"fmt"
-	"html/template"
 	"net/http"
 	"os"
 	"snippetbox/cmd/web/config"
@@ -17,23 +16,39 @@ func Home(app *config.Application) http.HandlerFunc {
 			app.NotFound(w)
 			return
 		}
-		files := []string{
-			"./ui/html/base.tmpl.html",
-			"./ui/html/pages/home.tmpl.html",
-			"./ui/html/partials/nav.tmpl.html",
-		}
 
-		ts, err := template.ParseFiles(files...)
+		snippets, err := app.Snippets.Latest()
 		if err != nil {
 			app.ServerError(w, err)
 			return
 		}
 
-		err = ts.ExecuteTemplate(w, "base", nil)
-		if err != nil {
-			app.ServerError(w, err)
-			return
+		for _, snippet := range snippets {
+			fmt.Fprintf(w, "id:%d, title:%s, content:%s, created:%v, expires:%v\n",
+				snippet.ID.Int64,
+				snippet.Title.String,
+				snippet.Content.String,
+				snippet.Created.Time,
+				snippet.Expires.Time)
 		}
+
+		//files := []string{
+		//	"./ui/html/base.tmpl.html",
+		//	"./ui/html/pages/home.tmpl.html",
+		//	"./ui/html/partials/nav.tmpl.html",
+		//}
+		//
+		//ts, err := template.ParseFiles(files...)
+		//if err != nil {
+		//	app.ServerError(w, err)
+		//	return
+		//}
+		//
+		//err = ts.ExecuteTemplate(w, "base", nil)
+		//if err != nil {
+		//	app.ServerError(w, err)
+		//	return
+		//}
 	}
 }
 func SnippetView(app *config.Application) http.HandlerFunc {

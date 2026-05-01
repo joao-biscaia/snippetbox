@@ -3,15 +3,14 @@ package models
 import (
 	"database/sql"
 	"errors"
-	"time"
 )
 
 type Snippet struct {
-	ID      int
-	Title   string
-	Content string
-	Created time.Time
-	Expires time.Time
+	ID      sql.NullInt64
+	Title   sql.NullString
+	Content sql.NullString
+	Created sql.NullTime
+	Expires sql.NullTime
 }
 type SnippetModel struct {
 	DB *sql.DB
@@ -41,7 +40,7 @@ func (m *SnippetModel) Get(id int) (*Snippet, error) {
 	s := &Snippet{}
 	// scan copies values into snippet instantiated above -- errors from DB.QueryRow are deferred
 	// until Scan is called
-	err := m.DB.QueryRow(stmt, id).Scan(&s.ID, &s.Title, &s.Content, &s.Created, &s.Expires)
+	err := m.DB.QueryRow(stmt, id).Scan(&s.ID.Int64, &s.Title.String, &s.Content.String, &s.Created.Time, &s.Expires.Time)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, ErrNoRecord
@@ -53,5 +52,30 @@ func (m *SnippetModel) Get(id int) (*Snippet, error) {
 }
 
 func (m *SnippetModel) Latest() ([]*Snippet, error) {
-	return nil, nil
+	stmt := `SELECT id, title, content, created, expires FROM snippets
+	WHERE expires > UTC_TIMESTAMP() ORDER BY id DESC limit 10`
+
+	rows, err := m.DB.Query(stmt)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	snippets := make([]*Snippet, 0)
+
+	for rows.Next() {
+		s := &Snippet{}
+		err := rows.Scan(&s.ID, &s.Title, &s.Content, &s.Created, &s.Expires)
+		if err != nil {
+			return nil, err
+		}
+		snippets = append(snippets, s)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return snippets, nil
 }
