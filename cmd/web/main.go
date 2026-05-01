@@ -3,12 +3,13 @@ package main
 import (
 	"database/sql"
 	"flag"
-	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"net/http"
 	"os"
 	"snippetbox/cmd/web/config"
 	"snippetbox/internal/models"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 func main() {
@@ -33,7 +34,7 @@ func main() {
 	srv := &http.Server{
 		Addr:     *addr,
 		ErrorLog: app.ErrorLog,
-		Handler:  routes(app)(*staticDir),
+		Handler:  routes(app, *staticDir),
 	}
 
 	app.InfoLog.Printf("Starting server on %v", srv.Addr)

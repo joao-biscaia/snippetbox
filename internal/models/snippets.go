@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"errors"
 	"time"
 )
 
@@ -32,9 +33,26 @@ func (m *SnippetModel) Insert(title string, content string, expires int) (int, e
 
 	return int(id), nil
 }
+
 func (m *SnippetModel) Get(id int) (*Snippet, error) {
-	return nil, nil
+	stmt := `SELECT id, title, content, created, expires FROM snippets
+	WHERE expires > UTC_TIMESTAMP() and id = ?`
+
+	row := m.DB.QueryRow(stmt, id)
+
+	s := &Snippet{}
+	// scan copies values into snippet instantiated above
+	err := row.Scan(&s.ID, &s.Title, &s.Content, &s.Created, &s.Expires)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrNoRecord
+		}
+		return nil, err
+
+	}
+	return s, nil
 }
+
 func (m *SnippetModel) Latest() ([]*Snippet, error) {
 	return nil, nil
 }
