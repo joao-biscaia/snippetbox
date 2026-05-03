@@ -9,6 +9,7 @@ import (
 	"snippetbox/cmd/web/config"
 	"snippetbox/internal/models"
 
+	"github.com/go-playground/form/v4"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -28,11 +29,15 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	formDecoder := form.NewDecoder()
+
 	app := &config.Application{
 		InfoLog:       log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime),
 		ErrorLog:      log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile),
 		Snippets:      &models.SnippetModel{DB: db},
 		TemplateCache: templateCache,
+		FormDecoder:   formDecoder,
 	}
 
 	srv := &http.Server{

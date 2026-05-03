@@ -12,10 +12,10 @@ import (
 )
 
 type SnippetCreateForm struct {
-	Title   string
-	Content string
-	Expires int
-	validator.Validator
+	Title               string `form:"title"`
+	Content             string `form:"content"`
+	Expires             int    `form:"expires"`
+	validator.Validator `form:"-"`
 }
 
 func (app *Application) Home(w http.ResponseWriter, r *http.Request) {
@@ -55,23 +55,12 @@ func (app *Application) SnippetView(w http.ResponseWriter, r *http.Request) {
 	app.Render(w, http.StatusOK, "view.tmpl.html", data)
 }
 func (app *Application) SnippetCreatePost(w http.ResponseWriter, r *http.Request) {
-	// Parses all form data into `PostForm` map inside http.Request param
-	err := r.ParseForm()
+	var form SnippetCreateForm
+
+	err := app.decodePostForm(r, form)
 	if err != nil {
 		app.ClientError(w, http.StatusBadRequest)
 		return
-	}
-
-	expires, err := strconv.Atoi(r.PostForm.Get("expires"))
-	if err != nil {
-		app.ClientError(w, http.StatusBadRequest)
-		return
-	}
-
-	form := &SnippetCreateForm{
-		Title:   r.PostForm.Get("title"),
-		Content: r.PostForm.Get("content"),
-		Expires: expires,
 	}
 
 	form.CheckField(validator.NotBlank(form.Title), "title", "This field cannot be blank")
@@ -86,7 +75,7 @@ func (app *Application) SnippetCreatePost(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	id, err := app.Snippets.Insert(form.Title, form.Content, expires)
+	id, err := app.Snippets.Insert(form.Title, form.Content, form.Expires)
 	if err != nil {
 		app.ServerError(w, err)
 		return
