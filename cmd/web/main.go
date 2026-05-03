@@ -38,7 +38,7 @@ func main() {
 	srv := &http.Server{
 		Addr:     *addr,
 		ErrorLog: app.ErrorLog,
-		Handler:  routes(app, *staticDir),
+		Handler:  app.Routes(*staticDir),
 	}
 
 	app.InfoLog.Printf("Starting server on %v", srv.Addr)

@@ -2,19 +2,22 @@ package config
 
 import (
 	"html/template"
+	"net/http"
 	"path/filepath"
 	"snippetbox/internal/models"
+	"time"
 )
 
 type TemplateData struct {
-	Snippet  *models.Snippet
-	Snippets []*models.Snippet
+	CurrentYear int
+	Snippet     *models.Snippet
+	Snippets    []*models.Snippet
 }
 
 func NewTemplatecache() (map[string]*template.Template, error) {
 	cache := map[string]*template.Template{}
 
-	pages, err := filepath.Glob("./ui/html/pages/*.tmpl.html")
+	pages, err := filepath.Glob("./ui/html/pages/*.html")
 	if err != nil {
 		return nil, err
 	}
@@ -27,17 +30,22 @@ func NewTemplatecache() (map[string]*template.Template, error) {
 			return nil, err
 		}
 
-		ts, err = template.ParseGlob("./ui/html/partials/*.html")
+		ts, err = ts.ParseGlob("./ui/html/partials/*.tmpl.html")
 		if err != nil {
 			return nil, err
 		}
 
-		ts, err = template.ParseFiles(page)
+		ts, err = ts.ParseFiles(page)
 		if err != nil {
 			return nil, err
 		}
-
 		cache[name] = ts
 	}
 	return cache, nil
+}
+
+func (app *Application) NewTemplateData(r *http.Request) *TemplateData {
+	return &TemplateData{
+		CurrentYear: time.Now().Year(),
+	}
 }

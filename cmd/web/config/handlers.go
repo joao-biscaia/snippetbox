@@ -1,16 +1,15 @@
-package handlers
+package config
 
 import (
 	"errors"
 	"fmt"
 	"net/http"
 	"os"
-	"snippetbox/cmd/web/config"
 	"snippetbox/internal/models"
 	"strconv"
 )
 
-func Home(app *config.Application) http.HandlerFunc {
+func Home(app *Application) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {
 			app.NotFound(w)
@@ -23,12 +22,13 @@ func Home(app *config.Application) http.HandlerFunc {
 			return
 		}
 
-		app.Render(w, http.StatusOK, "home.tmpl.html", &config.TemplateData{
-			Snippets: snippets,
-		})
+		data := app.NewTemplateData(r)
+		data.Snippets = snippets
+
+		app.Render(w, http.StatusOK, "home.tmpl.html", data)
 	}
 }
-func SnippetView(app *config.Application) http.HandlerFunc {
+func SnippetView(app *Application) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id, err := strconv.Atoi(r.URL.Query().Get("id"))
 		if err != nil || id < 1 {
@@ -46,12 +46,13 @@ func SnippetView(app *config.Application) http.HandlerFunc {
 			return
 		}
 
-		app.Render(w, http.StatusOK, "view.tmpl.html", &config.TemplateData{
-			Snippet: snippet,
-		})
+		data := app.NewTemplateData(r)
+		data.Snippet = snippet
+
+		app.Render(w, http.StatusOK, "view.tmpl.html", data)
 	}
 }
-func SnippetCreate(app *config.Application) http.HandlerFunc {
+func SnippetCreate(app *Application) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			w.Header().Set("Allow", http.MethodPost)
