@@ -3,6 +3,8 @@ package config
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/justinas/nosurf"
 )
 
 func (app *Application) SecureHeaders(next http.Handler) http.Handler {
@@ -50,4 +52,15 @@ func (app *Application) requireAuthentication(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r)
 	})
+}
+
+func noSurf(next http.Handler) http.Handler {
+	csrfHandler := nosurf.New(next)
+	// as logout is present in nav.tmpl.html, we need to add this middleware to ALL functions
+	csrfHandler.SetBaseCookie(http.Cookie{
+		HttpOnly: true,
+		Path:     "/",
+		Secure:   true,
+	})
+	return csrfHandler
 }
