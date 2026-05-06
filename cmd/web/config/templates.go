@@ -9,10 +9,12 @@ import (
 )
 
 type TemplateData struct {
-	CurrentYear int
-	Snippet     *models.Snippet
-	Snippets    []*models.Snippet
-	Form        any
+	CurrentYear     int
+	Snippet         *models.Snippet
+	Snippets        []*models.Snippet
+	Form            any
+	Flash           string
+	IsAuthenticated bool
 }
 
 func NewTemplatecache() (map[string]*template.Template, error) {
@@ -47,6 +49,8 @@ func NewTemplatecache() (map[string]*template.Template, error) {
 
 func (app *Application) NewTemplateData(r *http.Request) *TemplateData {
 	return &TemplateData{
-		CurrentYear: time.Now().Year(),
+		CurrentYear:     time.Now().Year(),
+		Flash:           app.SessionManager.PopString(r.Context(), "flash"),
+		IsAuthenticated: app.isAuthenticated(r),
 	}
 }
