@@ -12,8 +12,8 @@ import (
 type Application struct {
 	ErrorLog       *log.Logger
 	InfoLog        *log.Logger
-	Snippets       *models.SnippetModel
-	Users          *models.UserModel
+	Snippets       models.SnippetModelInterface
+	Users          models.UserModelInterface
 	TemplateCache  map[string]*template.Template
 	FormDecoder    *form.Decoder
 	SessionManager *scs.SessionManager
