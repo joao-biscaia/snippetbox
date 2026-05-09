@@ -32,7 +32,7 @@ func (app *Application) Routes(staticDir string) http.Handler {
 	router.Handler(http.MethodPost, "/snippet/create", protected.ThenFunc(app.SnippetCreatePost))
 	router.Handler(http.MethodPost, "/user/logout", protected.ThenFunc(app.userLogoutPost))
 
-	standard := alice.New(app.recoverPanic, app.logRequest, app.SecureHeaders)
+	standard := alice.New(app.recoverPanic, app.logRequest, SecureHeaders)
 
 	return standard.Then(router)
 }
