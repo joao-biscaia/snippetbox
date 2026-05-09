@@ -9,7 +9,7 @@ import (
 )
 
 // The Routes() method returns a servemux containing our application Routes.
-func (app *Application) Routes(staticDir string) http.Handler {
+func (app *Application) Routes() http.Handler {
 	router := httprouter.New()
 	router.NotFound = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		app.NotFound(w)
@@ -17,6 +17,7 @@ func (app *Application) Routes(staticDir string) http.Handler {
 
 	fileServer := http.FileServer(http.FS(ui.Files))
 	router.Handler(http.MethodGet, "/static/*filepath", fileServer)
+	router.HandlerFunc(http.MethodGet, "/ping", ping)
 
 	dynamic := alice.New(app.SessionManager.LoadAndSave, noSurf, app.Authenticate)
 

@@ -66,7 +66,7 @@ func main() {
 	srv := &http.Server{
 		Addr:         *addr,
 		ErrorLog:     app.ErrorLog,
-		Handler:      app.Routes(*staticDir),
+		Handler:      app.Routes(),
 		TLSConfig:    tlsConfig,
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  time.Second * 5,

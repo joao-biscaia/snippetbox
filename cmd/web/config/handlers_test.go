@@ -1,35 +1,20 @@
 package config
 
 import (
-	"bytes"
-	"io"
-	"log"
 	"net/http"
-	"net/http/httptest"
 	"snippetbox/internal/assert"
 	"testing"
 )
 
 func TestPing(t *testing.T) {
-	rr := httptest.NewRecorder()
+	app := newTestApplication(t)
 
-	r, err := http.NewRequest(http.MethodGet, "/", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+	ts := newTestServer(t, app.Routes())
+	defer ts.Close()
 
-	ping(rr, r)
+	code, _, body := ts.get(t, "/ping")
 
-	rs := rr.Result()
+	assert.Equal(t, code, http.StatusOK)
+	assert.Equal(t, body, "OK")
 
-	assert.Equal(t, rs.StatusCode, http.StatusOK)
-
-	defer rs.Body.Close()
-	body, err := io.ReadAll(rs.Body)
-	if err != nil {
-		t.Fatal(err)
-	}
-	bytes.TrimSpace(body)
-
-	assert.Equal(t, string(body), "OK")
 }
