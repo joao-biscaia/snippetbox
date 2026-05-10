@@ -6,9 +6,9 @@ import (
 )
 
 var mockSnippet = &models.Snippet{
-	ID:      0,
-	Title:   "test mock mock",
-	Content: "test mock mock",
+	ID:      1,
+	Title:   "An old silent pond",
+	Content: "An old silent pond...",
 	Created: time.Now(),
 	Expires: time.Now(),
 }
@@ -26,7 +26,6 @@ func (m *SnippetModel) Get(id int) (*models.Snippet, error) {
 		return mockSnippet, nil
 	default:
 		return nil, models.ErrNoRecord
-
 	}
 }
 

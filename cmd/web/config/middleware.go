@@ -63,6 +63,9 @@ func noSurf(next http.Handler) http.Handler {
 		Path:     "/",
 		Secure:   true,
 	})
+	csrfHandler.SetFailureHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Error(w, fmt.Sprintf("Bad Request: %v", nosurf.Reason(r)), http.StatusBadRequest)
+	}))
 	return csrfHandler
 }
 
